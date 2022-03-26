@@ -1,65 +1,85 @@
-import React from 'react';
-import {AppBar} from '../../components/appbar';
-import {Link, useNavigate} from "react-router-dom";
-import {Form, Button, Container, Row, Col} from "react-bootstrap";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import {MdError} from 'react-icons/md'
+import { signInWithEmailAndPassword } from "firebase/auth";
+import {ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+import {auth} from "./../../libs/firebase"
+import { Label, Input } from "./../../ui/forms";
+import { SubmitButton } from "../../ui/buttons";
+import {LoginPageStyles, FormControl} from './styles'
+
+//import {Form, Button, Container, Row, Col} from "react-bootstrap";
 import logo from '../../../src/logo.png';
+ 
 
-function LoginPage  (props){
-let navigation = useNavigate();
+function LoginPage(props) {
+     const navigator = useNavigate()
+     const [email, setEmail] = useState("")
+     const [password, setPassword] = useState("")
 
-function onHandleSubmit(evt) {
-    evt.preventDefault();
-    navigation('dashboard');
-}
 
-return( 
+     const notify = (error) => toast.error(error.code,{
+      position: "top-center",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      icon:<MdError/>
+
+  });
+
+
+   function onLoginRequest(e){
+     e.preventDefault();
+     signInWithEmailAndPassword(auth, email, password)
+     .then(userCredential=>{
+         navigator('/dashboard') 
+     })
+     .catch(error=>{
+       // add toast messages
+       notify(error)
+     })
+  
+   }
+  return (
     <>
-    <AppBar/>
-    <Container>        
-        <Row className='mt-5' style={ {backgroundColor: "#ededed"} }>
-            <Col className='m-auto'>
-                <img src={logo} className='img-fluid' alt='car logo' />
-            </Col>
-            <Col className='p-5 border' >
-                <Row className='justify-content-md-center'>
-                    <Col md="auto"><h1 className='my-4'>SIGN INTO THE DASHBOARD</h1></Col>
-                    
-                </Row>
-                {/* https://react-bootstrap.github.io/forms/overview/ */}
-                <Form>
-                    <Form.Group className="mb-3" controlId="formEmail">
-                        <Form.Label>EMAIL ADDRESS</Form.Label>
-                        <Form.Control type="email" placeholder="Enter your email address" />
-                    </Form.Group>
+      <LoginPageStyles>
+        <ToastContainer/>
 
-                    <Form.Group className="mb-3" controlId="formPassword">
-                        <Form.Label>PASSWORD</Form.Label>
-                        <Form.Control type="password" placeholder="Password" />
-                    </Form.Group>
-                    <Form.Group className="mb-3" controlId="formCheckbox">
-                        <Form.Check type="checkbox" label="Remember me" />
-                    </Form.Group>
-                    <Button variant="primary" type="submit" onClick={onHandleSubmit}>
-                        LOGIN
-                    </Button>
-                </Form>
-                <Row className='my-5'>
-                    <Col><Link className='link-danger' to="/#">FORGOT PASSWORD</Link></Col>
-                    <Col>NEW MEMBER ( <Link className='link-info' to="/#"> SIGN UP</Link> )</Col>
-                </Row>
-                
-            </Col>
-            
-        </Row>
-        
-        
-    </Container>
+        <header>
+          <h2>StoreFront Dashboard</h2>
+        </header>
 
+        <form onSubmit={onLoginRequest}>
+          <FormControl className="form-control">
+            <Label htmlFor="email">Email</Label>
+            <Input id="email" type="text" placeholder="janedoe@gmail.com" onChange={(e)=> setEmail(e.target.value)}/>
+          </FormControl>
+
+          <FormControl className="form-control">
+            <Label htmlFor="password">Password</Label>
+            <Input id="password" type="text" placeholder="account password" onChange={(e)=>setPassword(e.target.value)} />
+          </FormControl>
+          <FormControl className="form-control">
+            <SubmitButton
+              type="submit"
+              padding="0.88rem"
+              margin="1rem 0 0"
+              fs="1rem"
+              bg="orange"
+            >
+              log in to dashboard
+            </SubmitButton>
+          </FormControl>
+        </form>
+      </LoginPageStyles>
     </>
-    
-
-)
-
+  );
 }
 
-export default LoginPage; 
+export default LoginPage;

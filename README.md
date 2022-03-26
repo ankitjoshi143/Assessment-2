@@ -15,10 +15,6 @@ const GlobalStyles = createGlobalStyle`
 export {GlobalStyles}
 ```
 
- 
 
- 
-
- 
-
- 
+# Adding Nested Routes
+Adding nested routes in react application
